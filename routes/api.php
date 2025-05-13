@@ -1,7 +1,7 @@
 <?php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\AuthController;
 
 Route::post('/message', function (Request $request) {
     $validated = $request->validate([
@@ -14,3 +14,8 @@ Route::post('/message', function (Request $request) {
         'data' => $validated,
     ]);
 });
+
+
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
