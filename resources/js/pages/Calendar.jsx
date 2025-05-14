@@ -1,9 +1,12 @@
+import Aside from "../components/Aside";
+
 // resources/js/pages/Calendar.jsx
 export default function Calendar() {
     return (
-        <div style={{ padding: "2rem" }}>
+        <div className="flex">
+            <Aside />
             <h1>Календарь</h1>
-            <p>Тут будет Big Calendar и фильтры ✨</p>
+            <main className="flex-1 p-6">{/* Контент страницы */}</main>
         </div>
     );
 }

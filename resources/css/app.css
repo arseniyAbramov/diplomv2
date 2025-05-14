@@ -11,6 +11,26 @@
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
 }
+
+..aside-link {
+    @apply flex items-center gap-3 px-4 py-2 rounded text-gray-600 hover:bg-gray-100 transition;
+}
+
+.aside-link--active {
+    @apply bg-indigo-500 text-white font-medium;
+}
+
+.icon {
+    @apply w-5 h-5 transition;
+}
+
+.icon--default {
+    filter: invert(30%);
+}
+
+.icon--active {
+    filter: brightness(0) invert(1); /* делает иконку белой */
+}
 /* 
 * {
     padding: 0px;
