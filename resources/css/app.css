@@ -13,9 +13,12 @@
 }
 
 .aside-link {
-    @apply flex items-center gap-3 px-4 py-2 rounded text-gray-600 hover:bg-gray-100 transition;
+    @apply flex items-center gap-3 px-4 py-2 rounded text-gray-600 transition;
 }
 
+.aside-link:not(.aside-link--active):hover {
+    @apply bg-gray-100;
+}
 .aside-link--active {
     @apply bg-indigo-500 text-white font-medium;
 }
@@ -31,35 +34,12 @@
 .icon--active {
     filter: brightness(0) invert(1); /* делает иконку белой */
 }
-/* 
-* {
-    padding: 0px;
-    margin: 0px;
-    border: none;
+
+.aside-link--active {
+    background-color: #2563eb;
+    color: white;
 }
 
-:root {
-    font-family: "Manrope", sans-serif;
-    color: black;
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+.aside-link--active .icon {
+    filter: brightness(0) invert(1); /* ← делает иконку белой */
 }
-
-a,
-li,
-button {
-    text-decoration: none;
-    list-style: none;
-    background: none;
-}
-.link {
-    list-style: none;
-}
-
-.container {
-    max-width: 1430px;
-    padding: 0 20px;
-    margin: 0 auto;
-} */

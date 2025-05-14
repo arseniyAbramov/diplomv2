@@ -21,43 +21,78 @@ export default function Aside() {
             </div>
 
             <nav className="flex-1 flex flex-col gap-1">
-                <NavLink to="/calendar" className="aside-link">
+                <NavLink
+                    to="/calendar"
+                    className={({ isActive }) =>
+                        `aside-link ${isActive ? "aside-link--active" : ""}`
+                    }
+                >
                     <img src="/icons/calendar.svg" alt="" className="icon" />
                     Календарь
                 </NavLink>
 
                 {role === "admin" && (
-                    <NavLink to="/dashboard" className="aside-link">
+                    <NavLink
+                        to="/dashboard"
+                        className={({ isActive }) =>
+                            `aside-link ${isActive ? "aside-link--active" : ""}`
+                        }
+                    >
                         <img src="/icons/chart.svg" alt="" className="icon" />
                         Дашборд
                     </NavLink>
                 )}
 
-                <NavLink to="/profile" className="aside-link">
+                <NavLink
+                    to="/profile"
+                    className={({ isActive }) =>
+                        `aside-link ${isActive ? "aside-link--active" : ""}`
+                    }
+                >
                     <img src="/icons/profile.svg" alt="" className="icon" />
                     Профиль
                 </NavLink>
 
                 {role === "admin" && (
-                    <NavLink to="/staff" className="aside-link">
+                    <NavLink
+                        to="/staff"
+                        className={({ isActive }) =>
+                            `aside-link ${isActive ? "aside-link--active" : ""}`
+                        }
+                    >
                         <img src="/icons/people.svg" alt="" className="icon" />
                         Сотрудники
                     </NavLink>
                 )}
 
-                <NavLink to="/guidelines" className="aside-link">
+                <NavLink
+                    to="/guidelines"
+                    className={({ isActive }) =>
+                        `aside-link ${isActive ? "aside-link--active" : ""}`
+                    }
+                >
                     <img src="/icons/info-circle.svg" alt="" className="icon" />
                     Руководство
                 </NavLink>
 
                 {role === "admin" && (
-                    <NavLink to="/admin" className="aside-link">
+                    <NavLink
+                        to="/admin"
+                        className={({ isActive }) =>
+                            `aside-link ${isActive ? "aside-link--active" : ""}`
+                        }
+                    >
                         <img src="/icons/data.svg" alt="" className="icon" />
                         Админ панель
                     </NavLink>
                 )}
 
-                <NavLink to="/settings" className="aside-link">
+                <NavLink
+                    to="/settings"
+                    className={({ isActive }) =>
+                        `aside-link ${isActive ? "aside-link--active" : ""}`
+                    }
+                >
                     <img src="/icons/setting.svg" alt="" className="icon" />
                     Настройки
                 </NavLink>
