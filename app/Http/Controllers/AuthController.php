@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\URL; // не забудь подключить сверху
 
 class AuthController extends Controller
 {
@@ -37,7 +38,7 @@ class AuthController extends Controller
             'message' => 'Письмо с подтверждением отправлено на почту',
         ]);
     }
-    public function login(Request $request)
+public function login(Request $request)
 {
     $validated = $request->validate([
         'email' => 'required|email',
@@ -52,9 +53,16 @@ class AuthController extends Controller
         ]);
     }
 
+    // 👉 Позволяем зайти, но блокируем токен до верификации
     if (! $user->hasVerifiedEmail()) {
+        // ⚠️ возвращаем временный токен, но не выдаём доступ к API
         return response()->json([
-            'message' => 'Вы должны подтвердить свой email перед входом.'
+            'message' => 'Вы должны подтвердить свой email перед входом.',
+            'verify_url' => URL::temporarySignedRoute(
+                'verification.verify',
+                now()->addMinutes(60),
+                ['id' => $user->id, 'hash' => sha1($user->email)]
+            ),
         ], 403);
     }
 

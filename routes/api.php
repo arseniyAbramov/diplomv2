@@ -1,12 +1,13 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ServiceController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Auth\Events\Verified;
+use App\Http\Controllers\Auth\EmailVerificationController;
+use Illuminate\Support\Facades\Auth;
 
 // 👤 Аутентификация
 Route::post('/register', [AuthController::class, 'register']);
@@ -31,22 +32,12 @@ Route::get('/services', [ServiceController::class, 'index']);
 Route::post('/clients', [ClientController::class, 'store']);
 Route::post('/services', [ServiceController::class, 'store']);
 
-// ✅ Верификация email
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    if ($request->user()->hasVerifiedEmail()) {
-        return response()->json(['message' => 'Email уже подтверждён']);
-    }
+// ✅ Подтверждение Email (без авторизации)
+Route::get('/email/verify/{id}/{hash}', EmailVerificationController::class)
+    ->middleware(['signed'])
+    ->name('verification.verify');
 
-    if ($request->hasValidSignature()) {
-        $request->user()->markEmailAsVerified();
-        event(new Verified($request->user()));
-
-        return response()->json(['message' => 'Email успешно подтверждён']);
-    }
-
-    return response()->json(['message' => 'Неверная или просроченная ссылка'], 403);
-})->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
-
+// 📤 Повторная отправка письма
 Route::post('/email/verification-notification', function (Request $request) {
     if ($request->user()->hasVerifiedEmail()) {
         return response()->json(['message' => 'Email уже подтверждён']);
@@ -60,7 +51,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 // 🔐 Защищённые маршруты
 Route::middleware('auth:sanctum')->group(function () {
 
-    // ✅ Только подтверждённые
+    // ✅ Только для подтверждённых
     Route::middleware('verified')->get('/user', function (Request $request) {
         return response()->json([
             'status' => 'ok',
