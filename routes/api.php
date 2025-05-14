@@ -46,6 +46,16 @@ Route::middleware('auth:sanctum')->group(function () {
             'status' => 'logged_out'
         ]);
     });
+		    // 🔐 Только для администратора
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin-only', function () {
+            return response()->json([
+                'message' => 'Ты админ, добро пожаловать 😎'
+            ]);
+        });
+
+        // сюда потом пойдут: /dashboard, /staff и т.п.
+    });
 
     // 📅 CRUD для записей
     Route::get('/appointments', [AppointmentController::class, 'index']);

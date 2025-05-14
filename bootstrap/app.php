@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // 'auth' => \App\Http\Middleware\Authenticate::class,
         // 'auth:sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
     ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
