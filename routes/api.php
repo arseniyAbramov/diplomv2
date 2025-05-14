@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AppointmentController;
 
 Route::post('/message', function (Request $request) {
     $validated = $request->validate([
@@ -32,4 +33,12 @@ Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
     return response()->json([
         'status' => 'logged_out'
     ]);
+});
+
+// ⬇️ Добавляем здесь CRUD для записей
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/appointments', [AppointmentController::class, 'index']);
+    Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::patch('/appointments/{appointment}', [AppointmentController::class, 'update']);
+    Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy']);
 });
