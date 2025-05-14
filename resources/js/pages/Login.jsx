@@ -30,6 +30,7 @@ export default function Login() {
             }
 
             localStorage.setItem("token", data.token);
+            localStorage.setItem("role", data.user.role); // ← сохраняем роль!
             navigate("/calendar");
         } catch (err) {
             setError(err.message);

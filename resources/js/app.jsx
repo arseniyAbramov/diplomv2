@@ -6,7 +6,9 @@ import {
     Routes,
 } from "react-router-dom";
 import "../css/app.css";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Calendar from "./pages/Calendar";
+import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 
 export default function App() {
@@ -16,6 +18,14 @@ export default function App() {
                 <Route path="/" element={<Navigate to="/login" />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/calendar" element={<Calendar />} />
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
             </Routes>
         </Router>
     );
