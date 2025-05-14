@@ -1,7 +1,7 @@
 // resources/js/pages/Login.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
+// import "./Login.css";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -37,56 +37,75 @@ export default function Login() {
     };
 
     return (
-        <div className="login">
-            <form onSubmit={handleSubmit} className="login__form">
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <form
+                onSubmit={handleSubmit}
+                className="bg-white p-8 rounded-lg shadow-md w-full max-w-md space-y-6"
+            >
                 <img
-                    className="login__logo"
                     src="/logo-mechta.svg"
                     alt="Логотип"
+                    className="mx-auto h-24"
                 />
 
-                <h2 className="login__title">Добро пожаловать</h2>
-                <p className="login__subtitle">
+                <h2 className="text-2xl font-semibold text-center">
+                    Добро пожаловать
+                </h2>
+                <p className="text-sm text-gray-600 text-center">
                     Введите email и пароль для входа в систему
                 </p>
 
-                {error && <p className="login__error">{error}</p>}
+                {error && (
+                    <p className="text-red-500 text-sm text-center">{error}</p>
+                )}
 
-                <div className="login__field">
+                <div className="relative">
+                    <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700"
+                    >
+                        Email
+                    </label>
                     <input
                         type="email"
                         id="email"
-                        className="login__input"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <label htmlFor="email" className="login__label">
-                        Email
-                    </label>
                 </div>
 
-                <div className="login__field">
+                <div className="relative">
+                    <label
+                        htmlFor="password"
+                        className="block text-sm font-medium text-gray-700"
+                    >
+                        Пароль
+                    </label>
                     <input
                         type="password"
                         id="password"
-                        className="login__input"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <label htmlFor="password" className="login__label">
-                        Пароль
-                    </label>
                 </div>
 
-                <div className="login__options">
-                    <button type="button" className="login__forgot">
+                <div className="flex justify-end text-sm">
+                    <button
+                        type="button"
+                        className="text-blue-600 hover:underline"
+                    >
                         Забыли пароль?
                     </button>
                 </div>
 
-                <button type="submit" className="login__button">
+                <button
+                    type="submit"
+                    className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors"
+                >
                     Войти
                 </button>
             </form>

@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <link href="/resources/css/app.css" rel="stylesheet">
     <title>Laravel + React</title>
     @viteReactRefresh
     @vite('resources/js/index.jsx')
