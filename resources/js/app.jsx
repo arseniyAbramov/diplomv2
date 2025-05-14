@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import "../css/app.css";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Calendar from "./pages/Calendar";
+import CalendarPage from "./pages/CalendarPage";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 
@@ -17,7 +17,7 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<Navigate to="/login" />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/calendar" element={<CalendarPage />} />
                 <Route
                     path="/dashboard"
                     element={

@@ -15,7 +15,9 @@
         "vite": "^6.2.4"
     },
     "dependencies": {
+        "date-fns": "^4.1.0",
         "react": "^19.1.0",
+        "react-big-calendar": "^1.18.0",
         "react-dom": "^19.1.0",
         "react-router-dom": "^7.6.0"
     }
