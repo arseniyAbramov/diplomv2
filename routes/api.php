@@ -1,15 +1,16 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ServiceController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Auth\Events\Verified;
 
 // 👤 Аутентификация
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 // 💬 Тестовое сообщение
 Route::post('/message', function (Request $request) {
@@ -24,15 +25,43 @@ Route::post('/message', function (Request $request) {
     ]);
 });
 
-// 📄 Общедоступные ресурсы (если не защищаешь)
+// 📄 Общедоступные ресурсы
 Route::get('/clients', [ClientController::class, 'index']);
 Route::get('/services', [ServiceController::class, 'index']);
 Route::post('/clients', [ClientController::class, 'store']);
 Route::post('/services', [ServiceController::class, 'store']);
 
-// 🔐 Защищённые маршруты (требуют токен)
+// ✅ Верификация email
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    if ($request->user()->hasVerifiedEmail()) {
+        return response()->json(['message' => 'Email уже подтверждён']);
+    }
+
+    if ($request->hasValidSignature()) {
+        $request->user()->markEmailAsVerified();
+        event(new Verified($request->user()));
+
+        return response()->json(['message' => 'Email успешно подтверждён']);
+    }
+
+    return response()->json(['message' => 'Неверная или просроченная ссылка'], 403);
+})->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    if ($request->user()->hasVerifiedEmail()) {
+        return response()->json(['message' => 'Email уже подтверждён']);
+    }
+
+    $request->user()->sendEmailVerificationNotification();
+
+    return response()->json(['message' => 'Письмо отправлено повторно']);
+})->middleware(['auth:sanctum'])->name('verification.send');
+
+// 🔐 Защищённые маршруты
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
+
+    // ✅ Только подтверждённые
+    Route::middleware('verified')->get('/user', function (Request $request) {
         return response()->json([
             'status' => 'ok',
             'user' => $request->user(),
@@ -46,15 +75,14 @@ Route::middleware('auth:sanctum')->group(function () {
             'status' => 'logged_out'
         ]);
     });
-		    // 🔐 Только для администратора
+
+    // 🔐 Только админ
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin-only', function () {
             return response()->json([
                 'message' => 'Ты админ, добро пожаловать 😎'
             ]);
         });
-
-        // сюда потом пойдут: /dashboard, /staff и т.п.
     });
 
     // 📅 CRUD для записей

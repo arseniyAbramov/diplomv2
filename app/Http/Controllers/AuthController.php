@@ -25,37 +25,44 @@ class AuthController extends Controller
             'surname' => $validated['surname'] ?? null,
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
-            // 'password' => $validated['password'],
             'avatar' => $validated['avatar'] ?? null,
             'role' => $validated['role'] ?? 'user',
         ]);
 
+        // 💌 Вставляем вот сюда
+        $user->sendEmailVerificationNotification();
+
         return response()->json([
             'status' => 'registered',
-            'user' => $user,
+            'message' => 'Письмо с подтверждением отправлено на почту',
         ]);
     }
-
     public function login(Request $request)
-    {
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+{
+    $validated = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        $user = User::where('email', $validated['email'])->first();
+    $user = User::where('email', $validated['email'])->first();
 
-        if (! $user || ! Hash::check($validated['password'], $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Неверные учетные данные.'],
-            ]);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'token' => $token,
-            'user' => $user,
+    if (! $user || ! Hash::check($validated['password'], $user->password)) {
+        throw ValidationException::withMessages([
+            'email' => ['Неверные учетные данные.'],
         ]);
     }
+
+    if (! $user->hasVerifiedEmail()) {
+        return response()->json([
+            'message' => 'Вы должны подтвердить свой email перед входом.'
+        ], 403);
+    }
+
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'token' => $token,
+        'user' => $user,
+    ]);
+}
 }
