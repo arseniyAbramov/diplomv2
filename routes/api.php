@@ -32,7 +32,7 @@ Route::get('/services', [ServiceController::class, 'index']);
 Route::post('/clients', [ClientController::class, 'store']);
 Route::post('/services', [ServiceController::class, 'store']);
 
-// ✅ Подтверждение Email (без авторизации)
+// ✅ Подтверждение Email
 Route::get('/email/verify/{id}/{hash}', EmailVerificationController::class)
     ->middleware(['signed'])
     ->name('verification.verify');
@@ -51,7 +51,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 // 🔐 Защищённые маршруты
 Route::middleware('auth:sanctum')->group(function () {
 
-    // ✅ Только подтверждённые
+    // ✅ Получить текущего пользователя
     Route::middleware('verified')->get('/user', function (Request $request) {
         return response()->json([
             'status' => 'ok',
@@ -59,9 +59,9 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     });
 
+    // 🚪 Выход
     Route::post('/logout', function (Request $request) {
         $request->user()->currentAccessToken()->delete();
-
         return response()->json(['status' => 'logged_out']);
     });
 
@@ -73,7 +73,26 @@ Route::middleware('auth:sanctum')->group(function () {
             return User::all();
         });
 
-        // 🔁 Обновление роли пользователя
+        // ✏️ Обновление пользователя
+        Route::patch('/users/{user}', function (User $user, Request $request) {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'surname' => 'nullable|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'role' => 'required|in:user,admin,master',
+            ]);
+
+            $user->update($validated);
+            return response()->json($user);
+        });
+
+        // 🗑️ Удаление пользователя
+        Route::delete('/users/{user}', function (User $user) {
+            $user->delete();
+            return response()->json(['status' => 'deleted']);
+        });
+
+        // 🔁 Обновление только роли
         Route::patch('/users/{user}/role', function (User $user, Request $request) {
             $request->validate([
                 'role' => 'required|in:user,admin,master',
@@ -85,11 +104,9 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['status' => 'updated']);
         });
 
-        // 🤖 Пример админ-доступа
+        // 🤖 Пример доступа
         Route::get('/admin-only', function () {
-            return response()->json([
-                'message' => 'Ты админ, добро пожаловать 😎'
-            ]);
+            return response()->json(['message' => 'Ты админ, добро пожаловать 😎']);
         });
     });
 
