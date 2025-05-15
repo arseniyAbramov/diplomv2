@@ -10,6 +10,10 @@ class Appointment extends Model
         'start_time', 'end_time', 'price',
         'master_share', 'studio_share'
     ];
+    protected $casts = [
+    'start_time' => 'datetime',
+    'end_time' => 'datetime',
+];
 
     public function client()
     {

@@ -2,13 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\EmailVerificationController;
-use Illuminate\Support\Facades\DB;
 
 // 🔐 Аутентификация
 Route::post('/register', [AuthController::class, 'register']);
@@ -36,7 +37,7 @@ Route::get('/services', [ServiceController::class, 'index']);
 // 🔐 Защищённые маршруты
 Route::middleware('auth:sanctum')->group(function () {
 
-    // 👥 Вернуть всех пользователей (временно разрешено для всех авторизованных)
+    // 👥 Все пользователи
     Route::get('/users', function () {
         return User::all();
     });
@@ -58,7 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // 🧑 Только для админов
     Route::middleware('role:admin')->group(function () {
 
-        // 👤 Пользователи (управление)
+        // 👤 Управление пользователями
         Route::patch('/users/{user}/role', function (User $user, Request $request) {
             $request->validate([
                 'role' => 'required|in:user,admin,master',
@@ -88,12 +89,12 @@ Route::middleware('auth:sanctum')->group(function () {
             return response()->json(['status' => 'deleted']);
         });
 
-        // 👥 Клиенты
+        // 👥 Управление клиентами
         Route::post('/clients', [ClientController::class, 'store']);
         Route::patch('/clients/{client}', [ClientController::class, 'update']);
         Route::delete('/clients/{client}', [ClientController::class, 'destroy']);
 
-        // 💼 Услуги
+        // 💼 Управление услугами
         Route::post('/services', [ServiceController::class, 'store']);
         Route::patch('/services/{service}', [ServiceController::class, 'update']);
         Route::delete('/services/{service}', [ServiceController::class, 'destroy']);
@@ -104,26 +105,33 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/appointments', [AppointmentController::class, 'store']);
     Route::patch('/appointments/{appointment}', [AppointmentController::class, 'update']);
     Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy']);
-});
 
-Route::middleware('auth:sanctum')->get('/dashboard', function () {
-    return response()->json([
-        'monthly_income' => DB::table('appointments')
-            ->selectRaw("DATE_FORMAT(start_time, '%Y-%m') as month, SUM(price) as total")
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get(),
+    // 📊 Дашборд
+    Route::get('/dashboard', function () {
+        return response()->json([
+            'monthly_income' => DB::table('appointments')
+                ->selectRaw("DATE_FORMAT(start_time, '%Y-%m') as month, SUM(price) as total")
+                ->groupBy('month')
+                ->orderBy('month')
+                ->get(),
 
-        'by_master' => DB::table('appointments')
-            ->join('users', 'appointments.user_id', '=', 'users.id')
-            ->selectRaw('users.name as master, COUNT(*) as count')
-            ->groupBy('users.name')
-            ->get(),
+            'by_master' => DB::table('appointments')
+                ->join('users', 'appointments.user_id', '=', 'users.id')
+                ->selectRaw('users.name as master, COUNT(*) as count')
+                ->groupBy('users.name')
+                ->get(),
 
-        'by_service' => DB::table('appointments')
-            ->join('services', 'appointments.service_id', '=', 'services.id')
-            ->selectRaw('services.name as service, COUNT(*) as count')
-            ->groupBy('services.name')
-            ->get(),
-    ]);
+            'by_service' => DB::table('appointments')
+                ->join('services', 'appointments.service_id', '=', 'services.id')
+                ->selectRaw('services.name as service, COUNT(*) as count')
+                ->groupBy('services.name')
+                ->get(),
+        ]);
+    });
+
+    // 👤 Профиль
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::get('/profile/stats', [ProfileController::class, 'stats']);
+    Route::post('/user/avatar', [ProfileController::class, 'uploadAvatar']);
+    Route::patch('/user', [ProfileController::class, 'update']);
 });

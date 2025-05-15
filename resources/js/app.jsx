@@ -11,6 +11,7 @@ import AdminPage from "./pages/Admin";
 import CalendarPage from "./pages/CalendarPage";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 
 export default function App() {
     return (
@@ -19,6 +20,7 @@ export default function App() {
                 <Route path="/" element={<Navigate to="/login" />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route
                     path="/dashboard"
                     element={
