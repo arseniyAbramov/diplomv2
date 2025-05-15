@@ -2,12 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Models\User;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\Auth\EmailVerificationController;
-use Illuminate\Support\Facades\Auth;
 
 // 👤 Аутентификация
 Route::post('/register', [AuthController::class, 'register']);
@@ -51,7 +51,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 // 🔐 Защищённые маршруты
 Route::middleware('auth:sanctum')->group(function () {
 
-    // ✅ Только для подтверждённых
+    // ✅ Только подтверждённые
     Route::middleware('verified')->get('/user', function (Request $request) {
         return response()->json([
             'status' => 'ok',
@@ -62,13 +62,30 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', function (Request $request) {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'status' => 'logged_out'
-        ]);
+        return response()->json(['status' => 'logged_out']);
     });
 
     // 🔐 Только админ
     Route::middleware('role:admin')->group(function () {
+
+        // 🧑‍💼 Список всех пользователей
+        Route::get('/users', function () {
+            return User::all();
+        });
+
+        // 🔁 Обновление роли пользователя
+        Route::patch('/users/{user}/role', function (User $user, Request $request) {
+            $request->validate([
+                'role' => 'required|in:user,admin,master',
+            ]);
+
+            $user->role = $request->role;
+            $user->save();
+
+            return response()->json(['status' => 'updated']);
+        });
+
+        // 🤖 Пример админ-доступа
         Route::get('/admin-only', function () {
             return response()->json([
                 'message' => 'Ты админ, добро пожаловать 😎'
