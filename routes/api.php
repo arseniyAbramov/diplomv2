@@ -8,6 +8,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use Illuminate\Support\Facades\DB;
 
 // 🔐 Аутентификация
 Route::post('/register', [AuthController::class, 'register']);
@@ -103,4 +104,26 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/appointments', [AppointmentController::class, 'store']);
     Route::patch('/appointments/{appointment}', [AppointmentController::class, 'update']);
     Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy']);
+});
+
+Route::middleware('auth:sanctum')->get('/dashboard', function () {
+    return response()->json([
+        'monthly_income' => DB::table('appointments')
+            ->selectRaw("DATE_FORMAT(start_time, '%Y-%m') as month, SUM(price) as total")
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get(),
+
+        'by_master' => DB::table('appointments')
+            ->join('users', 'appointments.user_id', '=', 'users.id')
+            ->selectRaw('users.name as master, COUNT(*) as count')
+            ->groupBy('users.name')
+            ->get(),
+
+        'by_service' => DB::table('appointments')
+            ->join('services', 'appointments.service_id', '=', 'services.id')
+            ->selectRaw('services.name as service, COUNT(*) as count')
+            ->groupBy('services.name')
+            ->get(),
+    ]);
 });
