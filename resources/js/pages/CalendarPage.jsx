@@ -171,7 +171,7 @@ export default function CalendarPage() {
                             setAppointments((prev) => [
                                 ...prev,
                                 {
-                                    ...newAppointment,
+                                    id: newAppointment.id,
                                     title:
                                         newAppointment.service?.name ||
                                         "Запись клиента",
@@ -180,7 +180,8 @@ export default function CalendarPage() {
                                     client: newAppointment.client?.name,
                                     service: newAppointment.service?.name,
                                     price: newAppointment.price,
-                                    master: newAppointment.user?.name,
+                                    master: newAppointment.user?.name, // 👈 теперь точно будет
+                                    notes: newAppointment.notes,
                                 },
                             ]);
                             setCreatingSlot(null);

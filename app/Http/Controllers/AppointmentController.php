@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
@@ -14,7 +15,7 @@ class AppointmentController extends Controller
 
         $appointments = $user->role === 'admin'
             ? Appointment::with(['client', 'service', 'user'])->get()
-            : $user->appointments()->with(['client', 'service'])->get();
+            : $user->appointments()->with(['client', 'service', 'user'])->get(); // добавлен 'user'
 
         return response()->json($appointments);
     }
@@ -23,17 +24,20 @@ class AppointmentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'service_id' => 'required|exists:services,id',
-            'user_id'    => 'required|exists:users,id', // ← теперь явно передаётся
-            'start_time' => 'required|date',
-            'end_time'   => 'required|date|after:start_time',
-            'price'      => 'required|numeric',
-            'master_share' => 'required|numeric',
-            'studio_share' => 'required|numeric',
+            'client_id'     => 'required|exists:clients,id',
+            'service_id'    => 'required|exists:services,id',
+            'user_id'       => 'required|exists:users,id',
+            'start_time'    => 'required|date',
+            'end_time'      => 'required|date|after:start_time',
+            'price'         => 'required|numeric',
+            'master_share'  => 'required|numeric',
+            'studio_share'  => 'required|numeric',
         ]);
 
         $appointment = Appointment::create($validated);
+
+        // 🟢 Подгружаем связанные модели
+        $appointment->load(['client', 'service', 'user']);
 
         return response()->json($appointment, 201);
     }
@@ -48,17 +52,19 @@ class AppointmentController extends Controller
         }
 
         $validated = $request->validate([
-            'client_id' => 'sometimes|exists:clients,id',
-            'service_id' => 'sometimes|exists:services,id',
-            'user_id'    => 'sometimes|exists:users,id',
-            'start_time' => 'sometimes|date',
-            'end_time'   => 'sometimes|date|after:start_time',
-            'price'      => 'sometimes|numeric',
-            'master_share' => 'sometimes|numeric',
-            'studio_share' => 'sometimes|numeric',
+            'client_id'     => 'sometimes|exists:clients,id',
+            'service_id'    => 'sometimes|exists:services,id',
+            'user_id'       => 'sometimes|exists:users,id',
+            'start_time'    => 'sometimes|date',
+            'end_time'      => 'sometimes|date|after:start_time',
+            'price'         => 'sometimes|numeric',
+            'master_share'  => 'sometimes|numeric',
+            'studio_share'  => 'sometimes|numeric',
         ]);
 
         $appointment->update($validated);
+
+        $appointment->load(['client', 'service', 'user']);
 
         return response()->json($appointment);
     }
