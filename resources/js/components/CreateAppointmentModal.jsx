@@ -7,43 +7,37 @@ export default function CreateAppointmentModal({ slot, onClose, onCreated }) {
 
     const [clientId, setClientId] = useState("");
     const [serviceId, setServiceId] = useState("");
-    const [masterId, setMasterId] = useState("");
+    const [userId, setUserId] = useState("");
     const [start, setStart] = useState(slot.start);
     const [end, setEnd] = useState(slot.end);
+    const [price, setPrice] = useState(""); // отдельное поле для ручного ввода цены
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const formatDateTime = (date) => {
-        return new Date(date).toISOString().slice(0, 16);
-    };
-
-    const parseDateTime = (str) => {
-        return new Date(str);
-    };
+    const formatDateTime = (date) => new Date(date).toISOString().slice(0, 16);
+    const parseDateTime = (str) => new Date(str);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
 
         Promise.all([
-            fetch("http://127.0.0.1:8000/api/clients").then((res) =>
-                res.json()
-            ),
-            fetch("http://127.0.0.1:8000/api/services").then((res) =>
-                res.json()
-            ),
-        ]).then(([clientsData, servicesData]) => {
-            setClients(clientsData);
-            setServices(servicesData);
-        });
-
-        // Мастера — это пользователи с ролью "master"
-        fetch("http://127.0.0.1:8000/api/users")
-            .then((res) => res.json())
-            .then((data) => {
-                const mastersOnly = data.filter(
-                    (user) => user.role === "master"
-                );
-                setMasters(mastersOnly);
+            fetch("http://127.0.0.1:8000/api/clients", {
+                headers: { Authorization: `Bearer ${token}` },
+            }).then((res) => res.json()),
+            fetch("http://127.0.0.1:8000/api/services", {
+                headers: { Authorization: `Bearer ${token}` },
+            }).then((res) => res.json()),
+            fetch("http://127.0.0.1:8000/api/users", {
+                headers: { Authorization: `Bearer ${token}` },
+            }).then((res) => res.json()),
+        ])
+            .then(([clientsData, servicesData, usersData]) => {
+                setClients(clientsData);
+                setServices(servicesData);
+                setMasters(usersData.filter((u) => u.role === "master"));
+            })
+            .catch((e) => {
+                console.error("🚨 Ошибка загрузки данных:", e);
             });
     }, []);
 
@@ -52,16 +46,22 @@ export default function CreateAppointmentModal({ slot, onClose, onCreated }) {
         setLoading(true);
         setError("");
 
-        const service = services.find((s) => s.id == serviceId);
-        if (!service) {
-            setError("Услуга не найдена");
-            setLoading(false);
-            return;
-        }
+        const parsedPrice = parseFloat(price);
+        const masterShare = Math.round(parsedPrice * 0.7);
+        const studioShare = Math.round(parsedPrice * 0.3);
 
-        const price = parseFloat(service.price);
-        const masterShare = Math.round(price * 0.7);
-        const studioShare = Math.round(price * 0.3);
+        const payload = {
+            client_id: clientId,
+            service_id: serviceId,
+            user_id: userId,
+            start_time: formatDateTime(start),
+            end_time: formatDateTime(end),
+            price: parsedPrice,
+            master_share: masterShare,
+            studio_share: studioShare,
+        };
+
+        console.log("📤 Отправка данных:", payload);
 
         const token = localStorage.getItem("token");
 
@@ -72,23 +72,21 @@ export default function CreateAppointmentModal({ slot, onClose, onCreated }) {
                 "Content-Type": "application/json",
                 Accept: "application/json",
             },
-            body: JSON.stringify({
-                client_id: clientId,
-                service_id: serviceId,
-                master_id: masterId,
-                start_time: start,
-                end_time: end,
-                price,
-                master_share: masterShare,
-                studio_share: studioShare,
-            }),
+            body: JSON.stringify(payload),
         });
 
         const data = await res.json();
         setLoading(false);
 
         if (!res.ok) {
-            setError(data.message || "Ошибка создания");
+            console.log("🛑 Ответ от сервера:", data);
+            setError(
+                data.message ||
+                    Object.values(data.errors || {})
+                        .flat()
+                        .join(", ") ||
+                    "Ошибка создания"
+            );
             return;
         }
 
@@ -100,7 +98,6 @@ export default function CreateAppointmentModal({ slot, onClose, onCreated }) {
             <h2 className="text-xl font-semibold mb-4 text-indigo-700">
                 Создать запись
             </h2>
-
             <form
                 onSubmit={handleSubmit}
                 className="space-y-4 text-sm text-gray-700"
@@ -133,7 +130,7 @@ export default function CreateAppointmentModal({ slot, onClose, onCreated }) {
                         <option value="">Выберите услугу</option>
                         {services.map((s) => (
                             <option key={s.id} value={s.id}>
-                                {s.name} ({s.price}₽)
+                                {s.name}
                             </option>
                         ))}
                     </select>
@@ -142,8 +139,8 @@ export default function CreateAppointmentModal({ slot, onClose, onCreated }) {
                 <div>
                     <label className="block mb-1 font-medium">Мастер</label>
                     <select
-                        value={masterId}
-                        onChange={(e) => setMasterId(e.target.value)}
+                        value={userId}
+                        onChange={(e) => setUserId(e.target.value)}
                         required
                         className="w-full border rounded px-3 py-2"
                     >
@@ -154,6 +151,18 @@ export default function CreateAppointmentModal({ slot, onClose, onCreated }) {
                             </option>
                         ))}
                     </select>
+                </div>
+
+                <div>
+                    <label className="block mb-1 font-medium">Цена</label>
+                    <input
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        required
+                        className="w-full border rounded px-3 py-2"
+                        placeholder="₽"
+                    />
                 </div>
 
                 <div className="flex gap-4">

@@ -52,7 +52,7 @@ export default function CalendarPage() {
                 client: item.client?.name,
                 service: item.service?.name,
                 price: item.price,
-                master: item.master?.name,
+                master: item.user?.name, // 👈 заменено master → user
                 notes: item.notes,
             }));
 
@@ -180,7 +180,7 @@ export default function CalendarPage() {
                                     client: newAppointment.client?.name,
                                     service: newAppointment.service?.name,
                                     price: newAppointment.price,
-                                    master: newAppointment.master?.name,
+                                    master: newAppointment.user?.name,
                                 },
                             ]);
                             setCreatingSlot(null);

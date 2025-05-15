@@ -13,7 +13,7 @@ use App\Http\Controllers\Auth\EmailVerificationController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-// ✅ Email подтверждение
+// ✅ Подтверждение email
 Route::get('/email/verify/{id}/{hash}', EmailVerificationController::class)
     ->middleware(['signed'])
     ->name('verification.verify');
@@ -28,19 +28,6 @@ Route::post('/email/verification-notification', function (Request $request) {
     return response()->json(['message' => 'Письмо отправлено повторно']);
 })->middleware(['auth:sanctum'])->name('verification.send');
 
-// 💬 Тестовое сообщение
-Route::post('/message', function (Request $request) {
-    $validated = $request->validate([
-        'name' => 'required|string',
-        'message' => 'required|string',
-    ]);
-
-    return response()->json([
-        'status' => 'success',
-        'data' => $validated,
-    ]);
-});
-
 // 📄 Публичные ресурсы
 Route::get('/clients', [ClientController::class, 'index']);
 Route::get('/services', [ServiceController::class, 'index']);
@@ -48,14 +35,18 @@ Route::get('/services', [ServiceController::class, 'index']);
 // 🔐 Защищённые маршруты
 Route::middleware('auth:sanctum')->group(function () {
 
+    // 👥 Вернуть всех пользователей (временно разрешено для всех авторизованных)
+    Route::get('/users', function () {
+        return User::all();
+    });
+
     // 📥 Выход
     Route::post('/logout', function (Request $request) {
         $request->user()->currentAccessToken()->delete();
-
         return response()->json(['status' => 'logged_out']);
     });
 
-    // ✅ Проверка подтверждения
+    // ✅ Проверка email
     Route::middleware('verified')->get('/user', function (Request $request) {
         return response()->json([
             'status' => 'ok',
@@ -63,14 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     });
 
-    // 🧑 Админ-права
+    // 🧑 Только для админов
     Route::middleware('role:admin')->group(function () {
 
-        // 👤 Пользователи
-        Route::get('/users', function () {
-            return User::all();
-        });
-
+        // 👤 Пользователи (управление)
         Route::patch('/users/{user}/role', function (User $user, Request $request) {
             $request->validate([
                 'role' => 'required|in:user,admin,master',
@@ -111,7 +98,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/services/{service}', [ServiceController::class, 'destroy']);
     });
 
-    // 📅 Записи (Appointments)
+    // 📅 Записи
     Route::get('/appointments', [AppointmentController::class, 'index']);
     Route::post('/appointments', [AppointmentController::class, 'store']);
     Route::patch('/appointments/{appointment}', [AppointmentController::class, 'update']);

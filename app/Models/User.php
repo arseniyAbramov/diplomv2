@@ -36,6 +36,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function appointments()
     {
-        return $this->hasMany(\App\Models\Appointment::class, 'master_id');
+        // Обновлено: теперь связь по `user_id`
+        return $this->hasMany(\App\Models\Appointment::class, 'user_id');
     }
 }

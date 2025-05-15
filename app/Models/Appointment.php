@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -7,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 class Appointment extends Model
 {
     protected $fillable = [
-        'client_id', 'service_id', 'master_id',
+        'client_id', 'service_id', 'user_id',
         'start_time', 'end_time', 'price',
         'master_share', 'studio_share'
     ];
@@ -22,8 +21,8 @@ class Appointment extends Model
         return $this->belongsTo(Service::class);
     }
 
-    public function master()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'master_id');
+        return $this->belongsTo(User::class);
     }
 }
