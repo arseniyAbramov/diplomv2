@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminPage from "./pages/Admin";
 import CalendarPage from "./pages/CalendarPage";
 import Dashboard from "./pages/Dashboard";
+import Guidelines from "./pages/Guidelines";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Staff from "./pages/Staff";
@@ -22,6 +23,8 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/profile" element={<Profile />} />
+
+                <Route path="/guidelines" element={<Guidelines />} />
                 <Route path="/staff" element={<Staff />} />
                 <Route
                     path="/dashboard"

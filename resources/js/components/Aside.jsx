@@ -11,7 +11,7 @@ export default function Aside() {
     };
 
     return (
-        <aside className="w-64 h-screen bg-white border-r flex flex-col p-4 shadow-sm">
+        <aside className="sticky top-0 h-screen w-64 bg-white shadow-lg p-6">
             <div className="mb-8">
                 <img
                     src="/logo-mechta.svg"
