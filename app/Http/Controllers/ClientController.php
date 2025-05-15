@@ -38,4 +38,13 @@ class ClientController extends Controller
 
     return response()->json($client);
 }
+    public function destroy($id)
+{
+    $client = \App\Models\Client::findOrFail($id);
+
+    $client->appointments()->delete(); // ← ключевая строка
+    $client->delete();
+
+    return response()->json(['status' => 'deleted']);
+}
 }

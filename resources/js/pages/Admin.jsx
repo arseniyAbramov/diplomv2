@@ -1,4 +1,5 @@
 import ClientManagement from "../components/admin/ClientManagement";
+import ServiceManagement from "../components/admin/ServiceManagement";
 import UserManagement from "../components/admin/UserManagement";
 import Aside from "../components/Aside";
 
@@ -11,6 +12,7 @@ export default function AdminPage() {
 
                 <UserManagement />
                 <ClientManagement />
+                <ServiceManagement />
             </div>
         </div>
     );

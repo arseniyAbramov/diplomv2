@@ -106,7 +106,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/clients/{client}', [ClientController::class, 'destroy']);
 
         // 💼 Услуги
-        Route::get('/services', [ServiceController::class, 'index']);
         Route::post('/services', [ServiceController::class, 'store']);
         Route::patch('/services/{service}', [ServiceController::class, 'update']);
         Route::delete('/services/{service}', [ServiceController::class, 'destroy']);
