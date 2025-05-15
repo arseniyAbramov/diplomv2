@@ -134,4 +134,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile/stats', [ProfileController::class, 'stats']);
     Route::post('/user/avatar', [ProfileController::class, 'uploadAvatar']);
     Route::patch('/user', [ProfileController::class, 'update']);
+
+    
+    Route::middleware('auth:sanctum')->get('/staff', [\App\Http\Controllers\ProfileController::class, 'staffList']);
 });

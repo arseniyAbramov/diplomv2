@@ -76,4 +76,29 @@ $by_day = $appointments->groupBy(function ($a) {
 
         return response()->json(['status' => 'updated']);
     }
+    public function staffList()
+{
+    $masters = \App\Models\User::where('role', 'master')->get();
+
+    $result = $masters->map(function ($user) {
+        $appointments = $user->appointments;
+
+        $clients = $appointments->pluck('client_id')->unique()->count();
+        $sessions = $appointments->count();
+        $income = $appointments->sum('master_share');
+        $average = $sessions > 0 ? round($income / $sessions) : 0;
+
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'surname' => $user->surname,
+            'avatar' => $user->avatar,
+            'clients' => $clients,
+            'sessions' => $sessions,
+            'average_check' => $average,
+        ];
+    });
+
+    return response()->json($result);
+}
 }
