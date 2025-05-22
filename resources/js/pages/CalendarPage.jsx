@@ -9,6 +9,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 
 import Aside from "../components/Aside";
 import CreateAppointmentModal from "../components/CreateAppointmentModal";
+import EditAppointmentModal from "../components/EditAppointmentModal";
 
 const locales = { ru };
 
@@ -23,6 +24,7 @@ const localizer = dateFnsLocalizer({
 export default function CalendarPage() {
     const [appointments, setAppointments] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [editingEvent, setEditingEvent] = useState(null);
     const [creatingSlot, setCreatingSlot] = useState(null);
 
     useEffect(() => {
@@ -146,6 +148,15 @@ export default function CalendarPage() {
 
                         <div className="mt-6 space-y-2">
                             <button
+                                onClick={() => {
+                                    setEditingEvent(selectedEvent);
+                                    setSelectedEvent(null);
+                                }}
+                                className="w-full bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600 transition"
+                            >
+                                ✏️ Редактировать
+                            </button>
+                            <button
                                 onClick={handleDelete}
                                 className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
                             >
@@ -185,6 +196,36 @@ export default function CalendarPage() {
                                 },
                             ]);
                             setCreatingSlot(null);
+                        }}
+                    />
+                )}
+                {editingEvent && (
+                    <EditAppointmentModal
+                        appointment={editingEvent}
+                        onClose={() => setEditingEvent(null)}
+                        onUpdated={(updated) => {
+                            setAppointments((prev) =>
+                                prev.map((a) =>
+                                    a.id === updated.id
+                                        ? {
+                                              ...a,
+                                              title:
+                                                  updated.service?.name ||
+                                                  "Запись клиента",
+                                              start: new Date(
+                                                  updated.start_time
+                                              ),
+                                              end: new Date(updated.end_time),
+                                              client: updated.client?.name,
+                                              service: updated.service?.name,
+                                              price: updated.price,
+                                              master: updated.user?.name,
+                                              notes: updated.notes,
+                                          }
+                                        : a
+                                )
+                            );
+                            setEditingEvent(null);
                         }}
                     />
                 )}
