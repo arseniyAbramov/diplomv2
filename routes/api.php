@@ -10,6 +10,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\BugReportController;
 
 // 🔐 Аутентификация
 Route::post('/register', [AuthController::class, 'register']);
@@ -137,4 +138,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     
     Route::middleware('auth:sanctum')->get('/staff', [\App\Http\Controllers\ProfileController::class, 'staffList']);
+
+    Route::middleware('auth:sanctum')->post('/report-bug', [BugReportController::class, 'send']);
 });

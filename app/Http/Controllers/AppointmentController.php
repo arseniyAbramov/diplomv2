@@ -12,7 +12,7 @@ class AppointmentController extends Controller
     public function index()
     {
         $user = Auth::user();
-
+        \Log::info('Запрос на /appointments от: ', ['user' => $user]);
         $appointments = $user->role === 'admin'
             ? Appointment::with(['client', 'service', 'user'])->get()
             : $user->appointments()->with(['client', 'service', 'user'])->get(); // добавлен 'user'
